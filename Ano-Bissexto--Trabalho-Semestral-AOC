@@ -1,0 +1,121 @@
+.data
+msgAno1:    .asciiz "Digite o primeiro ano: "
+msgAno2:    .asciiz "Digite o segundo ano: "
+msgErro:    .asciiz "A diferenca entre os anos nao pode ser maior que 1000. Digite novamente.\n"
+msgTitulo:  .asciiz "\nAnos nao bissextos entre os anos informados:\n"
+msgNenhum:  .asciiz "Nao ha anos nao bissextos entre eles.\n"
+quebra:     .asciiz "\n"
+
+.text
+main:
+
+ler_anos:
+
+    li $v0, 4
+    la $a0, msgAno1
+    syscall
+
+    li $v0, 5
+    syscall
+    move $t0, $v0
+
+    li $v0, 4
+    la $a0, msgAno2
+    syscall
+
+    li $v0, 5
+    syscall
+    move $t1, $v0
+
+    bgt $t0, $t1, inverter
+
+    move $t2, $t0
+    move $t3, $t1
+    j verificar_diferenca
+
+inverter:
+
+    move $t2, $t1
+    move $t3, $t0
+
+verificar_diferenca:
+
+    sub $t4, $t3, $t2
+
+    li $t5, 1000
+
+    bgt $t4, $t5, solicitar_novamente
+    j iniciar
+
+solicitar_novamente:
+
+    li $v0, 4
+    la $a0, msgErro
+    syscall
+
+    j ler_anos
+
+iniciar:
+
+    li $v0, 4
+    la $a0, msgTitulo
+    syscall
+
+    addi $t6, $t2, 1
+    li $t9, 0
+
+loop:
+
+    bge $t6, $t3, fim
+
+    li $t7, 4
+    rem $t8, $t6, $t7
+
+    bne $t8, $zero, nao_bissexto
+
+    li $t7, 100
+    rem $t8, $t6, $t7
+
+    bne $t8, $zero, bissexto
+
+    li $t7, 400
+    rem $t8, $t6, $t7
+
+    beq $t8, $zero, bissexto
+
+    j nao_bissexto
+
+bissexto:
+
+    j proximo
+
+nao_bissexto:
+
+    li $v0, 1
+    move $a0, $t6
+    syscall
+
+    li $v0, 4
+    la $a0, quebra
+    syscall
+
+    li $t9, 1
+
+proximo:
+
+    addi $t6, $t6, 1
+
+    j loop
+
+fim:
+
+    bne $t9, $zero, encerrar
+
+    li $v0, 4
+    la $a0, msgNenhum
+    syscall
+
+encerrar:
+
+    li $v0, 10
+    syscall
